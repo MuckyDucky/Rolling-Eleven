@@ -4,6 +4,9 @@ import time
 from scripts.UltraColor import *
 from scripts.textures import *
 from scripts.globals import *
+from scripts.players import *
+
+
 
 pygame.init()
 
@@ -13,18 +16,25 @@ FPS=0
 
 game_title="FIFAL Fantasy"
 
-
+clicked=False
 
 
 fps_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 msg_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 20)#dont assume font exists. change later
+main_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 15)
+pck_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 
 sky = pygame.image.load("graphics\\sky.png")
 Sky=pygame.Surface(sky.get_size(), pygame.HWSURFACE)
 Sky.blit(sky, (0,0))
 
+interact=None
+buttons=[]
 
 del sky
+
+def getFont(name = "Courier New", size = 20, style = ''):           #POST: Returns the font the Caller wants
+    return pygame.font.SysFont(name, size, style)
 
 def show_fps():
     fps_overlay=fps_font.render(str(FPS), True, Color.Goldenrod)
@@ -55,6 +65,254 @@ def message_display(msg):
     
     window.blit(text,text_rect)
 
+def text_objects(text, font):
+    textsurface = font.render(text,True,Color.Black)
+    return textsurface, textsurface.get_rect()
+
+##def display_stats(athlete):
+##    #show stats
+##    nameText=main_font.render(athlete.name,True,Color.Yellow)
+##    nameText_rect=nameText.get_rect(center=(window_width/2, window_height/2-40))
+##    priceText=main_font.render('$'+str(athlete.price),True,Color.Yellow)
+##    priceText_rect=priceText.get_rect(center=(window_width/2, window_height/2-20))
+##    statsText=main_font.render('ATK: ' + str(athlete.atk) + ' DEF: ' + str(athlete.dfns) + ' STM : ' + str(athlete.stm),True,Color.Yellow)
+##    statsText_rect=statsText.get_rect(center=(window_width/2, window_height/2))
+##    
+##
+##    mouse = pygame.mouse.get_pos()
+##    if athlete.bpos_x<mouse[0]<athlete.bpos_x+100 and athlete.bpos_y<mouse[1]<athlete.bpos_y+50:
+##        window.blit(nameText,nameText_rect)
+##        window.blit(priceText,priceText_rect)
+##        window.blit(statsText,statsText_rect)
+
+def display_player_roster():
+    
+    name1Text=main_font.render(players[0].name + ' ' + str(players[0].money) + 'G remaining' ,True,Color.Yellow)
+    name1Text_rect=name1Text.get_rect(center=(window_width/4, 3*window_height/4))
+    
+    name2Text=main_font.render(players[1].name  + ' ' + str(players[1].money) + 'G remaining' ,True,Color.Yellow)
+    name2Text_rect=name2Text.get_rect(center=(3*window_width/4, 3*window_height/4))
+
+    p1roster="Roster: "
+    p2roster="Roster: "
+
+    
+    
+    for ath in players[0].roster:
+        p1roster+=ath.name + ', '
+        
+    for ath in players[1].roster:
+        p2roster+=ath.name + ', '
+
+    roster1Text= main_font.render(p1roster,True,Color.Yellow)
+    roster1Text_rect= roster1Text.get_rect(center=(window_width/4, 3*window_height/4+20))
+
+    roster2Text= main_font.render(p2roster,True,Color.Yellow)
+    roster2Text_rect= roster2Text.get_rect(center=(3*window_width/4, 3*window_height/4+20))
+
+
+    pckmsg=", select a player to buy"
+    pckText=None
+    pckText_rect=None
+    
+    if players[0].turn:
+        pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
+        pckText=pck_font.render(players[0].name+pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(window_width/4, 3*window_height/4-60))
+    elif players[1].turn:
+        pygame.draw.rect(window, Color.Red, [window_width/2+80, 5*window_height/8+40, 250, 100], 2)
+        pckText=pck_font.render(players[1].name+pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(3*window_width/4, 3*window_height/4-60))
+        
+    
+    window.blit(name1Text,name1Text_rect)
+    window.blit(name2Text,name2Text_rect)
+    window.blit(roster1Text,roster1Text_rect)
+    window.blit(roster2Text,roster2Text_rect)
+    window.blit(pckText,pckText_rect)
+        
+
+class ClickableRect():
+    def __init__(self, pos, size):
+        self.rect=pygame.Rect((0,0),size)
+        self.rect.center=pos
+
+        self.hasClicked=False
+    def isMouseOver(self):
+        cur = pygame.mouse.get_pos()
+
+        if self.rect.left<cur[0]<self.rect.right and self.rect.top<cur[1]<self.rect.bottom:
+            return True
+        else:
+            return False
+
+    def doMouseOver(self):
+        #print('You moused over a rect')
+        pass
+
+    def isLeftMouseDown(self): ##
+        return self.hasClicked
+
+    def doLeftMouseDown(self): #when left mouse held down
+        pass
+        
+    def isClicked(self):
+        global interact
+        mouse = pygame.mouse.get_pressed()
+
+        if self.isMouseOver():
+            if mouse[0] and self.hasClicked==False and not interact:
+                self.hasClicked=True #left mouse button currently down
+                interact=self
+                return True
+        if mouse[0] == False and self.hasClicked==True: #if left mouse goes up
+            self.hasClicked==False
+            interact = None
+
+        return False    
+
+    def doClick(self):
+        print('You Clicked a Rect')
+        
+
+    def update(self, window):
+        if self.isMouseOver():
+            self.doMouseOver()
+
+        if self.isLeftMouseDown():
+            self.doLeftMouseDown()
+                
+        if self.isClicked():
+            self.doClick()
+
+
+class Button(ClickableRect):
+    def __init__(self,pos,size,color):
+        ClickableRect.__init__(self, pos, size)
+        
+        self.color = color
+        self.image=pygame.Surface(size)
+        self.image.fill(self.color)
+        
+
+    def doMouseOver(self):
+        overlay = pygame.Surface(self.rect.size)
+        overlay.set_alpha(60)
+        overlay.fill(Color.Black)
+        self.image.blit(overlay, (0,0))
+
+    def doLeftMouseDown(self):
+        self.image.fill(Color.Green)
+        
+    def doClick(self): #click action for single frame
+        print('You clicked a button')
+        
+        
+    def draw(self, window):
+        window.blit(self.image, self.rect)
+
+    def update(self, window):
+        self.image.fill(self.color)
+        
+
+        ClickableRect.update(self,window)
+        self.draw(window)
+
+class TextButton(Button):
+    def __init__(self,pos,size,color,text):
+        Button.__init__(self, pos, size, color)
+        self.text=getFont(size=36, style='bold').render(text,True,Color.Black)
+
+    def draw(self, window):
+        self.image.blit(self.text, (10,10))
+        Button.draw(self,window)
+
+class MarketButton(TextButton):
+    def __init__(self, pos, size, color, text, athIdx):
+        TextButton.__init__(self,pos,size,color,text)
+        self.athIdx=athIdx
+
+    def doClick(self):
+        nextTurnIdx=None
+        for idx,p in enumerate(players):
+            if p.turn==True:
+                p.buy_athlete(athletes[self.athIdx])
+                p.turn=False
+                if idx==0:
+                    nextTurnIdx=1
+                elif idx==1:
+                    nextTurnIdx=0
+        players[nextTurnIdx].turn=True
+
+    def display_stats(self):
+        nameText=main_font.render(athletes[self.athIdx].name,True,Color.Yellow)
+        nameText_rect=nameText.get_rect(center=(window_width/2, window_height/2-40))
+        priceText=main_font.render('$'+str(athletes[self.athIdx].price),True,Color.Yellow)
+        priceText_rect=priceText.get_rect(center=(window_width/2, window_height/2-20))
+        statsText=main_font.render('ATK: ' + str(athletes[self.athIdx].atk) + ' DEF: ' + str(athletes[self.athIdx].dfns) + ' STM : ' + str(athletes[self.athIdx].stm),True,Color.Yellow)
+        statsText_rect=statsText.get_rect(center=(window_width/2, window_height/2))
+        window.blit(nameText,nameText_rect)
+        window.blit(priceText,priceText_rect)
+        window.blit(statsText,statsText_rect)
+                
+
+    def doMouseOver(self):
+        
+        overlay = pygame.Surface(self.rect.size)
+        overlay.set_alpha(60)
+        overlay.fill(Color.Black)
+        self.image.blit(overlay, (0,0))
+        self.display_stats()
+        
+
+        
+    def update(self, window):
+        self.image.fill(self.color)
+        
+        ClickableRect.update(self,window)
+        self.draw(window)        
+        
+
+
+
+    
+    
+
+def button(msg,x,y,w,h,iCol,aCol,athlete): #later loop over player names
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    
+    
+    
+##     
+##    if x < mouse[0] < x+w and y < mouse[1] < y+h:       
+##        pygame.draw.rect(window, aCol, (x,y,w,h))
+##        #print('mouse in button')
+##        print(clicked)
+##        #if clicked:
+##        if click[0]: 
+##            print('button clicked')
+##            for p in players:
+##                if p.turn==True:
+##                    p.buy_athlete(athlete)
+##            clicked=True
+##            #print(click)
+##                   
+##        #else:
+##            #print('not clicked')
+##                    
+##                    #p.buy_athlete(objAth.name)
+##                
+##                            
+##                    #print(objAth.name)
+##                    
+##    else:            
+##        pygame.draw.rect(window, iCol, (x,y,w,h))
+##    smallText=main_font
+    textSurf, textRect=text_objects(msg, smallText)
+    textRect.center=((x+(w/2)),(y+(h/2))) #x,y
+    window.blit(textSurf, textRect)
+
 #EVENTS LOOP
 def main_loop():
     isRunning=True    
@@ -76,7 +334,14 @@ def main_loop():
                     
             elif event.type == pygame.KEYUP:
                 Globals.camera_move=0
-                    
+
+                
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                
+                clicked=True
+                print(clicked)
+                
+                
                     
                 
 
@@ -100,11 +365,48 @@ def main_loop():
         for x in range (0,window_width, Tiles.Size):
             for y in range(0, window_height, Tiles.Size):
                 window.blit(Tiles.Grass,(x,y))
+                
+        #rect.update(window)
+        #button.update(window)
+        #txtButton.update(window)
+        
+        for mktButton in buttons:
+            mktButton.update(window)
+        #button(athletes[0].name,10,10,100,50,Color.Blue,Color.LightBlue)
+
+##        for idx,item in enumerate(athletes):
+##            row = idx//7
+##            col = idx-row*7
+##            #button('['+item.pos+']'+item.name, 10+110*col, 10+60*row , 100, 50, Color.Blue, Color.LightBlue)
+##
+##            item.bpos_x=10+110*col
+##            item.bpos_y=10+60*row
+##            display_stats(item)
+##            button('['+item.pos+']'+item.name, item.bpos_x, item.bpos_y , 100, 50, Color.Blue, Color.LightBlue,item)
+##            #button(item.name,10,10,100,50,Color.Blue,Color.LightBlue)
+
+        
+
+        """
+        #mouse control
+        mouse = pygame.mouse.get_pos()
+
+        
+        if 10 < mouse[0] < 10+100 and 10 < mouse[1] < 10+50:       
+            pygame.draw.rect(window, Color.LightBlue, (10,10,100,50))
+        else:            
+            pygame.draw.rect(window, Color.Blue, (10,10,100,50))
+        smallText=msg_font
+        textSurf, textRect=text_objects("Lionel Messi", smallText)
+        textRect.center=((10+(100/2)),(10+(50/2))) #x,y
+        window.blit(textSurf, textRect)
+        """
         
 
         
         show_fps()
         
+        display_player_roster()
         pygame.display.update()
 
         count_fps()
@@ -126,15 +428,33 @@ def game_intro ():
                     main_loop()
                     
                             
-                            
+
+
+
         
     
     
-            
-    
+   
 
 create_window()
+
+            
+#variables
+#rect=ClickableRect((window.get_rect().centerx, window.get_rect().centery),(200,80))
+#button=Button((window.get_rect().centerx, window.get_rect().centery),(200,80),Color.Red)
+#txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
+#mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
+
+for idx,item in enumerate(athletes):
+            row = idx//7
+            col = idx-row*7
+            button=MarketButton((10+100*col,10+60*row),(100,50), Color.Blue, item.name, idx)
+            buttons.append(button)
+#def __init__(self, pos, size, color, text, athIdx):
+
 game_intro()
+
+
 
 
 
