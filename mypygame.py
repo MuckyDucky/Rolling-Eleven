@@ -132,6 +132,24 @@ def display_player_roster():
     window.blit(roster1Text,roster1Text_rect)
     window.blit(roster2Text,roster2Text_rect)
     window.blit(pckText,pckText_rect)
+
+def display_battle_status():
+    pygame.draw.line(window, Color.White, (window_width/2,0),(window_width/2,window_height))
+    pygame.draw.circle(window, Color.White, (int(window_width/2), int(window_height/2)),50,2)
+    #pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
+    pygame.draw.rect(window, Color.White, [0, window_height/4, window_width/6 , window_height/2],2)
+    pygame.draw.rect(window, Color.White, [window_width-window_width/6, window_height/4, window_width/6 , window_height/2],2)
+                                           
+    
+    name1Text=main_font.render(players[0].name,True,Color.Yellow)
+    name1Text_rect=name1Text.get_rect(center=(window_width/4, 3*window_height/4))
+    
+    name2Text=main_font.render(players[1].name,True,Color.Yellow)
+    name2Text_rect=name2Text.get_rect(center=(3*window_width/4, 3*window_height/4))
+
+
+    window.blit(name1Text,name1Text_rect)
+    window.blit(name2Text,name2Text_rect)
         
 
 class ClickableRect():
@@ -412,6 +430,9 @@ def main_loop():
 
 ### battle phase            
         elif(phs.phase=='battle'):
+            display_battle_status()
+
+            
             pygame.display.update()
             
 
