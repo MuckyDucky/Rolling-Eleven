@@ -19,6 +19,7 @@ game_title="FIFAL Fantasy"
 clicked=False
 
 
+
 fps_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 msg_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 20)#dont assume font exists. change later
 main_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 15)
@@ -114,6 +115,7 @@ def display_player_roster():
     pckmsg=", select a player to buy"
     pckText=None
     pckText_rect=None
+
     
     if players[0].turn:
         pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
@@ -233,16 +235,23 @@ class MarketButton(TextButton):
         self.athIdx=athIdx
 
     def doClick(self):
-        nextTurnIdx=None
-        for idx,p in enumerate(players):
-            if p.turn==True:
-                p.buy_athlete(athletes[self.athIdx])
-                p.turn=False
-                if idx==0:
-                    nextTurnIdx=1
-                elif idx==1:
-                    nextTurnIdx=0
-        players[nextTurnIdx].turn=True
+        if phs.phase=='pick':
+            nextTurnIdx=None
+            for idx,p in enumerate(players):
+                if p.turn==True:
+                    p.buy_athlete(athletes[self.athIdx])
+                    p.turn=False
+                    if idx==0:
+                        nextTurnIdx=1
+                    elif idx==1:
+                        nextTurnIdx=0
+            players[nextTurnIdx].turn=True
+
+            if len(players[0].roster)==4 and len(players[1].roster)==4:
+                print('both rosters are full')
+                
+                phs.phase='ready'
+                print(phs.phase)
 
     def display_stats(self):
         nameText=main_font.render(athletes[self.athIdx].name,True,Color.Yellow)
@@ -257,12 +266,13 @@ class MarketButton(TextButton):
                 
 
     def doMouseOver(self):
+        if phs.phase=='pick':
         
-        overlay = pygame.Surface(self.rect.size)
-        overlay.set_alpha(60)
-        overlay.fill(Color.Black)
-        self.image.blit(overlay, (0,0))
-        self.display_stats()
+            overlay = pygame.Surface(self.rect.size)
+            overlay.set_alpha(60)
+            overlay.fill(Color.Black)
+            self.image.blit(overlay, (0,0))
+            self.display_stats()
         
 
         
@@ -270,8 +280,26 @@ class MarketButton(TextButton):
         self.image.fill(self.color)
         
         ClickableRect.update(self,window)
-        self.draw(window)        
+        self.draw(window)
+
+class ReadyButton(TextButton):
+    def __init__(self,pos,size,color,text):
+        TextButton.__init__(self,pos,size,color,text)
         
+    def doClick(self):
+        phs.phase='battle'
+
+    def update(self, window):
+        if phs.phase=='ready': 
+            self.image.fill(self.color)
+            
+
+            ClickableRect.update(self,window)
+            self.draw(window)        
+        
+class Phase():
+    def __init__(self, phase):
+        self.phase=phase
 
 
 
@@ -365,49 +393,33 @@ def main_loop():
         for x in range (0,window_width, Tiles.Size):
             for y in range(0, window_height, Tiles.Size):
                 window.blit(Tiles.Grass,(x,y))
-                
-        #rect.update(window)
-        #button.update(window)
-        #txtButton.update(window)
-        
-        for mktButton in buttons:
-            mktButton.update(window)
-        #button(athletes[0].name,10,10,100,50,Color.Blue,Color.LightBlue)
 
-##        for idx,item in enumerate(athletes):
-##            row = idx//7
-##            col = idx-row*7
-##            #button('['+item.pos+']'+item.name, 10+110*col, 10+60*row , 100, 50, Color.Blue, Color.LightBlue)
-##
-##            item.bpos_x=10+110*col
-##            item.bpos_y=10+60*row
-##            display_stats(item)
-##            button('['+item.pos+']'+item.name, item.bpos_x, item.bpos_y , 100, 50, Color.Blue, Color.LightBlue,item)
-##            #button(item.name,10,10,100,50,Color.Blue,Color.LightBlue)
 
-        
+### pick phase
+        if(phs.phase=='pick' or phs.phase=='ready'):
 
-        """
-        #mouse control
-        mouse = pygame.mouse.get_pos()
 
-        
-        if 10 < mouse[0] < 10+100 and 10 < mouse[1] < 10+50:       
-            pygame.draw.rect(window, Color.LightBlue, (10,10,100,50))
-        else:            
-            pygame.draw.rect(window, Color.Blue, (10,10,100,50))
-        smallText=msg_font
-        textSurf, textRect=text_objects("Lionel Messi", smallText)
-        textRect.center=((10+(100/2)),(10+(50/2))) #x,y
-        window.blit(textSurf, textRect)
-        """
-        
+            
+            for mktButton in buttons:
+                mktButton.update(window)
+            
+            rdyButton.update(window)
+                         
+            display_player_roster()
 
-        
+
+            pygame.display.update()
+
+### battle phase            
+        elif(phs.phase=='battle'):
+            pygame.display.update()
+            
+
+            
         show_fps()
         
-        display_player_roster()
-        pygame.display.update()
+        
+        
 
         count_fps()
     pygame.quit()
@@ -444,12 +456,14 @@ create_window()
 #button=Button((window.get_rect().centerx, window.get_rect().centery),(200,80),Color.Red)
 #txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 #mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
-
+rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Click to start the match!")
 for idx,item in enumerate(athletes):
             row = idx//7
             col = idx-row*7
             button=MarketButton((10+100*col,10+60*row),(100,50), Color.Blue, item.name, idx)
             buttons.append(button)
+phs=Phase('pick')            
+            
 #def __init__(self, pos, size, color, text, athIdx):
 
 game_intro()
