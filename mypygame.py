@@ -27,6 +27,7 @@ main_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 15)
 pck_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 scr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",30)
 dice_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",35)
+pwr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",25)
 
 
 interact=None
@@ -185,10 +186,12 @@ def display_battle_status():
 
     overall1Text=''
     overall2Text=''
+    
      
     if players[0].turn:
          overall1Text='Overall ATK : ' + str(players[0].avgAtk)
          overall2Text='Overall DEF : ' + str(players[1].avgDfns)
+         
     elif players[1].turn:
          overall1Text='Overall DEF : ' + str(players[0].avgDfns)
          overall2Text='OVerall ATK : ' + str(players[1].avgAtk)
@@ -201,7 +204,8 @@ def display_battle_status():
     window.blit(scoreText,scoreText_rect)
     window.blit(timeText,timeText_rect)
 
-    window.blit(pckText,pckText_rect)
+    if battle.timeIdx<len(battle.times)-1:
+        window.blit(pckText,pckText_rect)
     
     window.blit(main_font.render(overall1Text,True,Color.Yellow),(window_width/6, window_height/2+100))
     window.blit(main_font.render(overall2Text,True,Color.Yellow),(3*window_width/4, window_height/2+100))
@@ -209,15 +213,39 @@ def display_battle_status():
 def display_dice():
     dicetext1=None
     dicetext2=None
+
+    
+    
     if phs.phase=='rolling':
         dicetext1=str(random.randrange(1,7))
         dicetext2=str(random.randrange(1,7))
     elif phs.phase=='battle':
         dicetext1=str(players[0].diceVal)
         dicetext2=str(players[1].diceVal)
+       
 
-    window.blit(dice_font.render(dicetext1,True,Color.Black),(window_width/4, window_height/2+100))
-    window.blit(dice_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
+    window.blit(pwr_font.render(dicetext1,True,Color.Black),(window_width/4, window_height/2+100))
+    window.blit(pwr_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
+
+
+def display_total_pwr():
+
+    total1text=''
+    total2text=''
+    
+    if players[0].turn:
+        
+        total1text='total ATK Power : ' + str(players[0].totalPwr)
+        total2text='total DEF Power : ' + str(players[1].totalPwr)
+    elif players[1].turn:
+        
+        total1text='total DEF Power : ' + str(players[0].totalPwr)
+        total2text='total ATK Power : ' + str(players[1].totalPwr)
+
+    
+    window.blit(pwr_font.render(total1text,True,Color.Black),(window_width/8, window_height/2+200))
+    window.blit(pwr_font.render(total2text,True,Color.Black),(5*window_width/8, window_height/2+200))        
+    
 
 
 def display_battle_message():
@@ -233,6 +261,14 @@ def display_battle_message():
         msg='Goal for Player 2!'
     elif t==4:
         msg='Player 1 Misses!'
+    elif t==5:
+        if players[0].score>players[1].score:
+            msg='End of the match. Victory for ' + players[0].name + '!'
+        elif players[1].score>players[0].score:
+            msg='End of the match. Victory for ' + players[1].name + '!'
+        else:
+            msg='DRAW'
+        
 
     
 
@@ -464,8 +500,14 @@ class StopButton(TextButton):
                 p.totalPwr=p.avgDfns+p.diceVal
                 
         
-
-        if players[0].totalPwr>players[1].totalPwr:
+        if battle.timeIdx==len(battle.times)-1:
+            battle.time=90
+            phs.phase='gameover'
+            self.msgtrigger=5
+            
+            
+        
+        elif players[0].totalPwr>players[1].totalPwr:
             if players[0].turn:
                 players[0].score+=1
                 #print('Goal for player 1!')
@@ -513,31 +555,32 @@ class Battle():
     def updateTime(self):
         self.time=self.times[self.timeIdx]
     def moveToNext(self):
-        if self.timeIdx==len(self.times)-1:
-            phs.phase='gameover'
-            #phs.phase='gameover' to indicate game is done
-      
-        
-
-                                      
-                            
-            
-            
-        else:            
+##        if self.timeIdx==len(self.times)-1:
+##            phs.phase='gameover'
+##            #phs.phase='gameover' to indicate game is done
+##      
+##        
+##
+##                                      
+##                            
+##            
+##            
+##        else:            
             #if players[0].totalPwr and players[1].totalPwr:
             self.timeIdx+=1
-            if self.timeIdx==len(self.times)-1:
-                phs.phase='gameover'
-                return
+##            if self.timeIdx==len(self.times)-1:
+##                phs.phase='gameover'
+##                return
             self.updateTime()
             players[0].totalPwr=0
             players[1].totalPwr=0
-            if players[0].turn:
-                players[0].turn=False
-                players[1].turn=True
-            elif players[1].turn:
-                players[0].turn=True
-                players[1].turn=False
+            if battle.timeIdx>1:
+                if players[0].turn:
+                    players[0].turn=False
+                    players[1].turn=True
+                elif players[1].turn:
+                    players[0].turn=True
+                    players[1].turn=False
 
 
             
@@ -673,7 +716,8 @@ def main_loop():
                 rollButton.update(window)
                 for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
                     mktButton.update(window)
-                display_dice()    
+                display_dice()
+                display_total_pwr()
                 if battle.timeIdx:
                     display_battle_message()
                     
@@ -685,12 +729,8 @@ def main_loop():
                     
             
             elif(phs.phase=='gameover'):
-                if players[0].score>players[1].score:
-                    window.blit(pck_font.render(players[0].name+' wins!',True,Color.Red),(window_width/2,window_height/2))  
-                elif players[1].score>players[0].score:
-                    window.blit(pck_font.render(players[1].name+' wins!',True,Color.Red),(window_width/2,window_height/2))
-                else:
-                    window.blit(pck_font.render('DRAW',True,Color.Red),(window_width/2,window_height/2))
+                display_total_pwr()
+                display_battle_message()
                 
             
             pygame.display.update()
