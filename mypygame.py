@@ -26,6 +26,7 @@ msg_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 20)#dont assume fon
 main_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 15)
 pck_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 scr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",30)
+dice_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",35)
 
 
 interact=None
@@ -170,9 +171,28 @@ def display_battle_status():
 
      
     
+    #rosters
+    for i in range(0,4):
+         window.blit(main_font.render(players[0].roster[i].name,True,Color.Yellow),(window_width/6, window_height/2+20+20*i))            
+         window.blit(main_font.render(players[1].roster[i].name,True,Color.Yellow),(3*window_width/4, window_height/2+20+20*i))
+         if players[0].turn:
+             window.blit(main_font.render('ATK:' + str(players[0].roster[i].atk),True,Color.Yellow),(window_width/4, window_height/2+20+20*i))
+             window.blit(main_font.render('DEF:' + str(players[1].roster[i].dfns),True,Color.Yellow),(2.5*window_width/4, window_height/2+20+20*i))
+         elif players[1].turn:
+             window.blit(main_font.render('DEF:' + str(players[0].roster[i].dfns),True,Color.Yellow),(window_width/4, window_height/2+20+20*i))
+             window.blit(main_font.render('ATK:' + str(players[1].roster[i].atk),True,Color.Yellow),(2.5*window_width/4, window_height/2+20+20*i))
     
 
-
+    overall1Text=''
+    overall2Text=''
+     
+    if players[0].turn:
+         overall1Text='Overall ATK : ' + str(players[0].avgAtk)
+         overall2Text='Overall DEF : ' + str(players[1].avgDfns)
+    elif players[1].turn:
+         overall1Text='Overall DEF : ' + str(players[0].avgDfns)
+         overall2Text='OVerall ATK : ' + str(players[1].avgAtk)
+                  
 
     
     window.blit(name1Text,name1Text_rect)
@@ -182,7 +202,58 @@ def display_battle_status():
     window.blit(timeText,timeText_rect)
 
     window.blit(pckText,pckText_rect)
+    
+    window.blit(main_font.render(overall1Text,True,Color.Yellow),(window_width/6, window_height/2+100))
+    window.blit(main_font.render(overall2Text,True,Color.Yellow),(3*window_width/4, window_height/2+100))
    
+def display_dice():
+    dicetext1=None
+    dicetext2=None
+    if phs.phase=='rolling':
+        dicetext1=str(random.randrange(1,7))
+        dicetext2=str(random.randrange(1,7))
+    elif phs.phase=='battle':
+        dicetext1=str(players[0].diceVal)
+        dicetext2=str(players[1].diceVal)
+
+    window.blit(dice_font.render(dicetext1,True,Color.Black),(window_width/4, window_height/2+100))
+    window.blit(dice_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
+
+
+def display_battle_message():
+    msg=''
+    t=stopButton.msgtrigger # recieve the tirgger to know which message to display
+    if t==1:
+        msg='Goal for Player 1!'
+        
+    elif t==2:
+        msg='Player 2 Misses!'
+        
+    elif t==3:
+        msg='Goal for Player 2!'
+    elif t==4:
+        msg='Player 1 Misses!'
+
+    
+
+    msgText=scr_font.render(msg,True,Color.Black)
+    msgText_rect=msgText.get_rect(center=(window_width/2,window_height-30))
+
+    window.blit(msgText,msgText_rect)   
+        
+        
+        
+
+##def display_rolling_dice():
+##
+##   dicetext1=str(random.randrange(1,7))
+##   dicetext2=str(random.randrange(1,7))
+##    
+##
+##   window.blit(dice_font.render(dicetext1,True,Color.Black),(3*window_width/8-100, window_height/2+100))
+##   window.blit(dice_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
+##        
+
     
 
 def display_battle_canvas():
@@ -364,7 +435,23 @@ class RollButton(TextButton):
         TextButton.__init__(self,pos,size,color,text)
 
     def doClick(self):
+        
         print('roll btn clicked')
+        battle.moveToNext()
+        phs.phase='rolling'
+        self.hasClicked=False
+
+
+class StopButton(TextButton):
+    def __init__(self,pos,size,color,text):
+        TextButton.__init__(self,pos,size,color,text)
+        self.msgtrigger=0
+
+    def doClick(self):
+        print('stop btn clicked')
+        phs.phase='battle'
+
+        
         players[0].rollDice()
         players[1].rollDice()
 
@@ -381,23 +468,28 @@ class RollButton(TextButton):
         if players[0].totalPwr>players[1].totalPwr:
             if players[0].turn:
                 players[0].score+=1
-                print('Goal for player 1!')
+                #print('Goal for player 1!')
+                self.msgtrigger=1
                 
             else:     
                 print('Player 2 misses!')
+                self.msgtrigger=2
         elif players[0].totalPwr<players[1].totalPwr:
             if players[1].turn:
                 players[1].score+=1
                 print('Goal for player 2!')
+                self.msgtrigger=3
             else:
                 print('Player 1 misses!')
+                self.msgtrigger=4
             
 
             
         
-        battle.moveToNext()
+        #battle.moveToNext()
         print(battle.timeIdx)
-        self.hasClicked=False   
+        self.hasClicked=False
+    
 
             
             
@@ -414,9 +506,9 @@ class Battle():
     def __init__(self):
         self.times=[]       
         self.timeIdx=0       
-        for i in range(1,10):
+        for i in range(0,10):
             self.times.append(random.randrange(i*10-9,i*10))                              
-        self.time=self.times[0]                      
+        self.time=0                    
                               
     def updateTime(self):
         self.time=self.times[self.timeIdx]
@@ -446,6 +538,7 @@ class Battle():
             elif players[1].turn:
                 players[0].turn=True
                 players[1].turn=False
+
 
             
             
@@ -569,7 +662,7 @@ def main_loop():
             pygame.display.update()
 
 ### battle phase            
-        elif(phs.phase=='battle' or phs.phase=='gameover'):
+        elif(phs.phase=='battle' or phs.phase=='gameover' or phs.phase=='rolling'):
             
             
             display_battle_canvas()
@@ -580,6 +673,16 @@ def main_loop():
                 rollButton.update(window)
                 for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
                     mktButton.update(window)
+                display_dice()    
+                if battle.timeIdx:
+                    display_battle_message()
+                    
+            elif(phs.phase=='rolling'):
+                display_dice()
+                stopButton.update(window)
+                for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
+                    mktButton.update(window)
+                    
             
             elif(phs.phase=='gameover'):
                 if players[0].score>players[1].score:
@@ -636,13 +739,15 @@ create_window()
 #mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "START BATTLE")
 rollButton=RollButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Roll Dice")
+stopButton=StopButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "STOP")
 
 for idx,item in enumerate(athletes):
             row = idx//7
             col = idx-row*7
             button=MarketButton((10+100*col,10+60*row),(100,50), Color.Blue, item.name, idx)
             buttons.append(button)
-battle=Battle()            
+battle=Battle()
+
 phs=Phase('pick')            
             
 #def __init__(self, pos, size, color, text, athIdx):
