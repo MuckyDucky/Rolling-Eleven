@@ -1,15 +1,21 @@
 import pygame
+import random
 
 class Player:
     def __init__(self, name,turn):
         self.name=name
-        self.money=350
+        self.money=500
         self.turn=turn
         
         self.score=0
         self.roster=[]
-        self.diceVal=0        
-    def score_goal():
+        self.diceVal=0
+        self.avgAtk=0
+        self.avgDfns=0
+        self.avgStm=0
+        self.totalPwr=0
+                
+    def score_goal(self):
         self.score+=1
     def add_to_roster(self,athlete):
         self.roster.append(athlete) #fix later
@@ -22,10 +28,34 @@ class Player:
                 self.money-=a.price
                 self.add_to_roster(a)
     """
+    def updateAvgs(self):
+        rosterLen=len(self.roster)
+        if rosterLen:
+            totalAtk=0
+            totalDfns=0
+            totalStm=0
+            for ath in self.roster:
+                totalAtk+=ath.atk
+                totalDfns+=ath.dfns
+                totalStm+=ath.stm
+            self.avgAtk=totalAtk/rosterLen
+            self.avgDfns=totalAtk/rosterLen
+            self.avgStm=totalAtk/rosterLen
+            
     def buy_athlete(self,athlete):
         if self.money>=athlete.price and len(self.roster)<4:
             self.money-=athlete.price
             self.add_to_roster(athlete)
+            self.updateAvgs()
+    def rollDice(self):
+        self.diceVal=random.randrange(1,7)
+        print(self.diceVal)
+        return self.diceVal
+
+            
+                    
+
+            
         
             
                 

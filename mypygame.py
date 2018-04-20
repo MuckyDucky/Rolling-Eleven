@@ -1,6 +1,7 @@
 import pygame
 import sys
 import time
+import random
 from scripts.UltraColor import *
 from scripts.textures import *
 from scripts.globals import *
@@ -19,20 +20,18 @@ game_title="FIFAL Fantasy"
 clicked=False
 
 
-
+#FONTS
 fps_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 msg_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 20)#dont assume font exists. change later
 main_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 15)
 pck_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
+scr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",30)
 
-sky = pygame.image.load("graphics\\sky.png")
-Sky=pygame.Surface(sky.get_size(), pygame.HWSURFACE)
-Sky.blit(sky, (0,0))
 
 interact=None
 buttons=[]
 
-del sky
+
 
 def getFont(name = "Courier New", size = 20, style = ''):           #POST: Returns the font the Caller wants
     return pygame.font.SysFont(name, size, style)
@@ -132,24 +131,68 @@ def display_player_roster():
     window.blit(roster1Text,roster1Text_rect)
     window.blit(roster2Text,roster2Text_rect)
     window.blit(pckText,pckText_rect)
+    
+
+    
+    
 
 def display_battle_status():
+
+    
+        
+    name1Text=main_font.render(players[0].name,True,Color.Yellow)
+    name1Text_rect=name1Text.get_rect(center=(window_width/4, window_height/4-40))
+    
+    name2Text=main_font.render(players[1].name,True,Color.Yellow)
+    name2Text_rect=name2Text.get_rect(center=(3*window_width/4, window_height/4-40))
+
+    scoreText=scr_font.render(str(players[0].score) + ' : ' + str(players[1].score),True,Color.Black)
+    scoreText_rect=scoreText.get_rect(center=(window_width/2, window_height/4-40))
+
+    timeText=scr_font.render(str(battle.time) + "'",True,Color.Black)
+    timeText_rect=timeText.get_rect(center=(window_width/2, window_height/4-70))
+
+    pckmsg="Your turn to attack"
+    pckText=None
+    pckText_rect=None
+
+
+    
+    
+    if players[0].turn:
+        pygame.draw.rect(window, Color.Red, [80, window_height/8, 250, 100], 2)
+        pckText=pck_font.render(pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(window_width/4, window_height/8+70))
+    elif players[1].turn:
+        pygame.draw.rect(window, Color.Red, [window_width/2+80, window_height/8, 250, 100], 2)
+        pckText=pck_font.render(pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(3*window_width/4, window_height/8+70))
+
+     
+    
+    
+
+
+
+    
+    window.blit(name1Text,name1Text_rect)
+    window.blit(name2Text,name2Text_rect)
+
+    window.blit(scoreText,scoreText_rect)
+    window.blit(timeText,timeText_rect)
+
+    window.blit(pckText,pckText_rect)
+   
+    
+
+def display_battle_canvas():
     pygame.draw.line(window, Color.White, (window_width/2,0),(window_width/2,window_height))
     pygame.draw.circle(window, Color.White, (int(window_width/2), int(window_height/2)),50,2)
     #pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
     pygame.draw.rect(window, Color.White, [0, window_height/4, window_width/6 , window_height/2],2)
     pygame.draw.rect(window, Color.White, [window_width-window_width/6, window_height/4, window_width/6 , window_height/2],2)
                                            
-    
-    name1Text=main_font.render(players[0].name,True,Color.Yellow)
-    name1Text_rect=name1Text.get_rect(center=(window_width/4, 3*window_height/4))
-    
-    name2Text=main_font.render(players[1].name,True,Color.Yellow)
-    name2Text_rect=name2Text.get_rect(center=(3*window_width/4, 3*window_height/4))
 
-
-    window.blit(name1Text,name1Text_rect)
-    window.blit(name2Text,name2Text_rect)
         
 
 class ClickableRect():
@@ -241,7 +284,7 @@ class Button(ClickableRect):
 class TextButton(Button):
     def __init__(self,pos,size,color,text):
         Button.__init__(self, pos, size, color)
-        self.text=getFont(size=36, style='bold').render(text,True,Color.Black)
+        self.text=getFont(size=17, style='bold').render(text,True,Color.Black)
 
     def draw(self, window):
         self.image.blit(self.text, (10,10))
@@ -298,7 +341,8 @@ class MarketButton(TextButton):
         self.image.fill(self.color)
         
         ClickableRect.update(self,window)
-        self.draw(window)
+        if phs.phase=='pick':
+            self.draw(window)
 
 class ReadyButton(TextButton):
     def __init__(self,pos,size,color,text):
@@ -313,11 +357,107 @@ class ReadyButton(TextButton):
             
 
             ClickableRect.update(self,window)
-            self.draw(window)        
+            self.draw(window)
+
+class RollButton(TextButton):
+    def __init__(self,pos,size,color,text):
+        TextButton.__init__(self,pos,size,color,text)
+
+    def doClick(self):
+        print('roll btn clicked')
+        players[0].rollDice()
+        players[1].rollDice()
+
+        #if player's turn is true(player's attack turn),player's total power is avgAtk + diceVal
+        #else, player's total power is avgDef + diceVal
+        for idx, p in enumerate(players):
+            if p.turn:
+                p.totalPwr=p.avgAtk+p.diceVal
+            else:
+                p.totalPwr=p.avgDfns+p.diceVal
+                
+        
+
+        if players[0].totalPwr>players[1].totalPwr:
+            if players[0].turn:
+                players[0].score+=1
+                print('Goal for player 1!')
+                
+            else:     
+                print('Player 2 misses!')
+        elif players[0].totalPwr<players[1].totalPwr:
+            if players[1].turn:
+                players[1].score+=1
+                print('Goal for player 2!')
+            else:
+                print('Player 1 misses!')
+            
+
+            
+        
+        battle.moveToNext()
+        print(battle.timeIdx)
+        self.hasClicked=False   
+
+            
+            
+        
+        
+        
+            
         
 class Phase():
     def __init__(self, phase):
         self.phase=phase
+        
+class Battle():
+    def __init__(self):
+        self.times=[]       
+        self.timeIdx=0       
+        for i in range(1,10):
+            self.times.append(random.randrange(i*10-9,i*10))                              
+        self.time=self.times[0]                      
+                              
+    def updateTime(self):
+        self.time=self.times[self.timeIdx]
+    def moveToNext(self):
+        if self.timeIdx==len(self.times)-1:
+            phs.phase='gameover'
+            #phs.phase='gameover' to indicate game is done
+      
+        
+
+                                      
+                            
+            
+            
+        else:            
+            #if players[0].totalPwr and players[1].totalPwr:
+            self.timeIdx+=1
+            if self.timeIdx==len(self.times)-1:
+                phs.phase='gameover'
+                return
+            self.updateTime()
+            players[0].totalPwr=0
+            players[1].totalPwr=0
+            if players[0].turn:
+                players[0].turn=False
+                players[1].turn=True
+            elif players[1].turn:
+                players[0].turn=True
+                players[1].turn=False
+
+            
+            
+            
+   
+        #if players[0].diceVal
+        
+    
+    
+            
+        
+
 
 
 
@@ -405,7 +545,7 @@ def main_loop():
 
         
         # RENDER GRAPHICS          
-        window.blit(Sky, (0,0))
+        
 
         #-Render Simple Grid
         for x in range (0,window_width, Tiles.Size):
@@ -417,7 +557,7 @@ def main_loop():
         if(phs.phase=='pick' or phs.phase=='ready'):
 
 
-            
+            #display_battle_canvas()
             for mktButton in buttons:
                 mktButton.update(window)
             
@@ -429,9 +569,26 @@ def main_loop():
             pygame.display.update()
 
 ### battle phase            
-        elif(phs.phase=='battle'):
+        elif(phs.phase=='battle' or phs.phase=='gameover'):
+            
+            
+            display_battle_canvas()
             display_battle_status()
 
+            if(phs.phase=='battle'):
+
+                rollButton.update(window)
+                for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
+                    mktButton.update(window)
+            
+            elif(phs.phase=='gameover'):
+                if players[0].score>players[1].score:
+                    window.blit(pck_font.render(players[0].name+' wins!',True,Color.Red),(window_width/2,window_height/2))  
+                elif players[1].score>players[0].score:
+                    window.blit(pck_font.render(players[1].name+' wins!',True,Color.Red),(window_width/2,window_height/2))
+                else:
+                    window.blit(pck_font.render('DRAW',True,Color.Red),(window_width/2,window_height/2))
+                
             
             pygame.display.update()
             
@@ -477,12 +634,15 @@ create_window()
 #button=Button((window.get_rect().centerx, window.get_rect().centery),(200,80),Color.Red)
 #txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 #mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
-rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Click to start the match!")
+rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "START BATTLE")
+rollButton=RollButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Roll Dice")
+
 for idx,item in enumerate(athletes):
             row = idx//7
             col = idx-row*7
             button=MarketButton((10+100*col,10+60*row),(100,50), Color.Blue, item.name, idx)
             buttons.append(button)
+battle=Battle()            
 phs=Phase('pick')            
             
 #def __init__(self, pos, size, color, text, athIdx):
