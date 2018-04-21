@@ -34,6 +34,7 @@ interact=None
 buttons=[]
 
 
+###FUNCTIONS
 
 def getFont(name = "Courier New", size = 20, style = ''):           #POST: Returns the font the Caller wants
     return pygame.font.SysFont(name, size, style)
@@ -71,21 +72,6 @@ def text_objects(text, font):
     textsurface = font.render(text,True,Color.Black)
     return textsurface, textsurface.get_rect()
 
-##def display_stats(athlete):
-##    #show stats
-##    nameText=main_font.render(athlete.name,True,Color.Yellow)
-##    nameText_rect=nameText.get_rect(center=(window_width/2, window_height/2-40))
-##    priceText=main_font.render('$'+str(athlete.price),True,Color.Yellow)
-##    priceText_rect=priceText.get_rect(center=(window_width/2, window_height/2-20))
-##    statsText=main_font.render('ATK: ' + str(athlete.atk) + ' DEF: ' + str(athlete.dfns) + ' STM : ' + str(athlete.stm),True,Color.Yellow)
-##    statsText_rect=statsText.get_rect(center=(window_width/2, window_height/2))
-##    
-##
-##    mouse = pygame.mouse.get_pos()
-##    if athlete.bpos_x<mouse[0]<athlete.bpos_x+100 and athlete.bpos_y<mouse[1]<athlete.bpos_y+50:
-##        window.blit(nameText,nameText_rect)
-##        window.blit(priceText,priceText_rect)
-##        window.blit(statsText,statsText_rect)
 
 def display_player_roster():
     
@@ -96,9 +82,7 @@ def display_player_roster():
     name2Text_rect=name2Text.get_rect(center=(3*window_width/4, 3*window_height/4))
 
     p1roster="Roster: "
-    p2roster="Roster: "
-
-    
+    p2roster="Roster: "   
     
     for ath in players[0].roster:
         p1roster+=ath.name + ', '
@@ -113,10 +97,21 @@ def display_player_roster():
     roster2Text_rect= roster2Text.get_rect(center=(3*window_width/4, 3*window_height/4+20))
 
 
+    
+
+        
+    
+    window.blit(name1Text,name1Text_rect)
+    window.blit(name2Text,name2Text_rect)
+    window.blit(roster1Text,roster1Text_rect)
+    window.blit(roster2Text,roster2Text_rect)
+    
+    
+def display_pck_turn():
+
     pckmsg=", select a player to buy"
     pckText=None
     pckText_rect=None
-
     
     if players[0].turn:
         pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
@@ -126,15 +121,9 @@ def display_player_roster():
         pygame.draw.rect(window, Color.Red, [window_width/2+80, 5*window_height/8+40, 250, 100], 2)
         pckText=pck_font.render(players[1].name+pckmsg,True,Color.Red)
         pckText_rect=pckText.get_rect(center=(3*window_width/4, 3*window_height/4-60))
-        
-    
-    window.blit(name1Text,name1Text_rect)
-    window.blit(name2Text,name2Text_rect)
-    window.blit(roster1Text,roster1Text_rect)
-    window.blit(roster2Text,roster2Text_rect)
-    window.blit(pckText,pckText_rect)
     
 
+    window.blit(pckText,pckText_rect)
     
     
 
@@ -235,12 +224,12 @@ def display_total_pwr():
     
     if players[0].turn:
         
-        total1text='total ATK Power : ' + str(players[0].totalPwr)
-        total2text='total DEF Power : ' + str(players[1].totalPwr)
+        total1text='Total ATK Power : ' + str(players[0].totalPwr)
+        total2text='Total DEF Power : ' + str(players[1].totalPwr)
     elif players[1].turn:
         
-        total1text='total DEF Power : ' + str(players[0].totalPwr)
-        total2text='total ATK Power : ' + str(players[1].totalPwr)
+        total1text='Total DEF Power : ' + str(players[0].totalPwr)
+        total2text='Total ATK Power : ' + str(players[1].totalPwr)
 
     
     window.blit(pwr_font.render(total1text,True,Color.Black),(window_width/8, window_height/2+200))
@@ -392,9 +381,10 @@ class TextButton(Button):
     def __init__(self,pos,size,color,text):
         Button.__init__(self, pos, size, color)
         self.text=getFont(size=17, style='bold').render(text,True,Color.Black)
+        self.text_rect=self.text.get_rect(center=(size[0]/2, size[1]/2))
 
     def draw(self, window):
-        self.image.blit(self.text, (10,10))
+        self.image.blit(self.text, self.text_rect)
         Button.draw(self,window)
 
 class MarketButton(TextButton):
@@ -454,6 +444,7 @@ class MarketButton(TextButton):
 class ReadyButton(TextButton):
     def __init__(self,pos,size,color,text):
         TextButton.__init__(self,pos,size,color,text)
+        
         
     def doClick(self):
         phs.phase='battle'
@@ -700,7 +691,8 @@ def main_loop():
             rdyButton.update(window)
                          
             display_player_roster()
-
+            if phs.phase=='pick':
+                display_pck_turn()
 
             pygame.display.update()
 
@@ -777,14 +769,14 @@ create_window()
 #button=Button((window.get_rect().centerx, window.get_rect().centery),(200,80),Color.Red)
 #txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 #mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
-rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "START BATTLE")
+rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery),(200,80), Color.Red, "START BATTLE")
 rollButton=RollButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Roll Dice")
 stopButton=StopButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "STOP")
 
 for idx,item in enumerate(athletes):
             row = idx//7
             col = idx-row*7
-            button=MarketButton((10+100*col,10+60*row),(100,50), Color.Blue, item.name, idx)
+            button=MarketButton((65+110*col,40+60*row),(100,50), Color.Blue, item.name, idx)
             buttons.append(button)
 battle=Battle()
 

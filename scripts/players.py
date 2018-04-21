@@ -95,23 +95,31 @@ athletes=[]
 
 athletes.append(make_athlete('Messi', 'FW', 10,4,5,120))
 athletes.append(make_athlete('Ronaldo', 'FW', 10,3,7,120))
-
-
 athletes.append(make_athlete('Suarez', 'FW', 9,3,7,100))
-athletes.append(make_athlete('Salah', 'FW', 8,5,8,100))
-
-athletes.append(make_athlete('Dybala', 'FW', 8,4,6,80))
+athletes.append(make_athlete('Neymar', 'FW', 10,2,7,100))
+athletes.append(make_athlete('Salah', 'FW', 8,4,8,90))
+athletes.append(make_athlete('Hazard', 'FW', 9,3,6,90))
+athletes.append(make_athlete('H.M. Son', 'FW', 7,5,7,60))
 athletes.append(make_athlete('De Bruyne', 'MF', 7,6,5,80))
 athletes.append(make_athlete('Pogba', 'MF', 7,5,6,80))
 athletes.append(make_athlete('Kante', 'MF', 5,8,5,70))
+athletes.append(make_athlete('Kroos', 'MF', 7,6,6,90))
+athletes.append(make_athlete('D.Silva', 'MF', 8,4,4,80))
+athletes.append(make_athlete('Busquets', 'MF', 5,7,5,80))
+athletes.append(make_athlete('Modric', 'MF', 7,5,4,80))
 athletes.append(make_athlete('Ramos', 'DF', 3,9,8,80))
 athletes.append(make_athlete('Pique', 'DF', 4,8,7,70))
+athletes.append(make_athlete('Hummels', 'DF', 4,10,5,90))
+athletes.append(make_athlete('Chiellini', 'DF', 3,10,5,80))
 athletes.append(make_athlete('De Gea', 'GK', 2,8,5,80))
 athletes.append(make_athlete('Neuer', 'GK', 3,9,3,90))
+athletes.append(make_athlete('Courtois', 'GK', 2,9,5,70))
+
+
 
 """
-athletes.append(make_athlete('Kroos', 'MF' '10','5','7'))
-athletes.append(make_athlete('Pogba', 'MF' '10','5','7'))
+athletes.append(make_athlete('Kroos', 'MF' ,,))
+
 athletes.append(make_athlete('Kante', 'MF' '10','5','7'))
 athletes.append(make_athlete('Busquets', 'MF' '10','5','7'))
 athletes.append(make_athlete('Ramos', 'DF' '10','5','7'))
