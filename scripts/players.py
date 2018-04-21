@@ -29,6 +29,7 @@ class Player:
                 self.add_to_roster(a)
     """
     def updateAvgs(self):
+        print('updating Avgs')
         rosterLen=len(self.roster)
         if rosterLen:
             totalAtk=0
@@ -39,7 +40,7 @@ class Player:
                 totalDfns+=ath.dfns
                 totalStm+=ath.stm
             self.avgAtk=totalAtk/rosterLen
-            self.avgDfns=totalAtk/rosterLen
+            self.avgDfns=totalDfns/rosterLen
             self.avgStm=totalAtk/rosterLen
             
     def buy_athlete(self,athlete):
