@@ -7,8 +7,6 @@ from scripts.textures import *
 from scripts.globals import *
 from scripts.players import *
 
-##commit check!!!
-
 pygame.init()
 
 cSec=0
@@ -16,9 +14,6 @@ cFrame=0
 FPS=0
 
 game_title="FIFAL Fantasy"
-
-clicked=False
-
 
 #FONTS
 fps_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
@@ -95,11 +90,6 @@ def display_player_roster():
 
     roster2Text= main_font.render(p2roster,True,Color.Yellow)
     roster2Text_rect= roster2Text.get_rect(center=(3*window_width/4, 3*window_height/4+20))
-
-
-    
-
-        
     
     window.blit(name1Text,name1Text_rect)
     window.blit(name2Text,name2Text_rect)
@@ -241,11 +231,9 @@ def display_battle_message():
     msg=''
     t=stopButton.msgtrigger # recieve the tirgger to know which message to display
     if t==1:
-        msg='Goal for Player 1!'
-        
+        msg='Goal for Player 1!'      
     elif t==2:
-        msg='Player 2 Misses!'
-        
+        msg='Player 2 Misses!'      
     elif t==3:
         msg='Goal for Player 2!'
     elif t==4:
@@ -258,9 +246,6 @@ def display_battle_message():
         else:
             msg='DRAW'
         
-
-    
-
     msgText=scr_font.render(msg,True,Color.Black)
     msgText_rect=msgText.get_rect(center=(window_width/2,window_height-30))
 
@@ -278,19 +263,16 @@ def display_battle_message():
 ##   window.blit(dice_font.render(dicetext1,True,Color.Black),(3*window_width/8-100, window_height/2+100))
 ##   window.blit(dice_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
 ##        
-
     
-
 def display_battle_canvas():
     pygame.draw.line(window, Color.White, (window_width/2,0),(window_width/2,window_height))
     pygame.draw.circle(window, Color.White, (int(window_width/2), int(window_height/2)),50,2)
-    #pygame.draw.rect(window, Color.Red, [80, 5*window_height/8+40, 250, 100], 2)
     pygame.draw.rect(window, Color.White, [0, window_height/4, window_width/6 , window_height/2],2)
     pygame.draw.rect(window, Color.White, [window_width-window_width/6, window_height/4, window_width/6 , window_height/2],2)
-                                           
-
+                                    
         
 
+###BUTTON CLASSES
 class ClickableRect():
     def __init__(self, pos, size):
         self.rect=pygame.Rect((0,0),size)
@@ -333,7 +315,6 @@ class ClickableRect():
     def doClick(self):
         print('You Clicked a Rect')
         
-
     def update(self, window):
         if self.isMouseOver():
             self.doMouseOver()
@@ -347,13 +328,11 @@ class ClickableRect():
 
 class Button(ClickableRect):
     def __init__(self,pos,size,color):
-        ClickableRect.__init__(self, pos, size)
-        
+        ClickableRect.__init__(self, pos, size)      
         self.color = color
         self.image=pygame.Surface(size)
         self.image.fill(self.color)
         
-
     def doMouseOver(self):
         overlay = pygame.Surface(self.rect.size)
         overlay.set_alpha(60)
@@ -364,16 +343,13 @@ class Button(ClickableRect):
         self.image.fill(Color.Green)
         
     def doClick(self): #click action for single frame
-        print('You clicked a button')
-        
+        print('You clicked a button')      
         
     def draw(self, window):
         window.blit(self.image, self.rect)
 
     def update(self, window):
-        self.image.fill(self.color)
-        
-
+        self.image.fill(self.color) 
         ClickableRect.update(self,window)
         self.draw(window)
 
@@ -424,16 +400,13 @@ class MarketButton(TextButton):
                 
 
     def doMouseOver(self):
-        if phs.phase=='pick':
-        
+        if phs.phase=='pick':  
             overlay = pygame.Surface(self.rect.size)
             overlay.set_alpha(60)
             overlay.fill(Color.Black)
             self.image.blit(overlay, (0,0))
             self.display_stats()
-        
-
-        
+               
     def update(self, window):
         self.image.fill(self.color)
         
@@ -516,21 +489,11 @@ class StopButton(TextButton):
                 print('Player 1 misses!')
                 self.msgtrigger=4
             
-
-            
-        
-        #battle.moveToNext()
         print(battle.timeIdx)
         self.hasClicked=False
     
-
             
-            
-        
-        
-        
-            
-        
+#Game Phase Class        
 class Phase():
     def __init__(self, phase):
         self.phase=phase
@@ -573,118 +536,27 @@ class Battle():
                     players[0].turn=True
                     players[1].turn=False
 
-
-            
-            
-            
-   
-        #if players[0].diceVal
-        
-    
-    
-            
-        
-
-
-
-
-    
-    
-
-def button(msg,x,y,w,h,iCol,aCol,athlete): #later loop over player names
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    
-    
-    
-##     
-##    if x < mouse[0] < x+w and y < mouse[1] < y+h:       
-##        pygame.draw.rect(window, aCol, (x,y,w,h))
-##        #print('mouse in button')
-##        print(clicked)
-##        #if clicked:
-##        if click[0]: 
-##            print('button clicked')
-##            for p in players:
-##                if p.turn==True:
-##                    p.buy_athlete(athlete)
-##            clicked=True
-##            #print(click)
-##                   
-##        #else:
-##            #print('not clicked')
-##                    
-##                    #p.buy_athlete(objAth.name)
-##                
-##                            
-##                    #print(objAth.name)
-##                    
-##    else:            
-##        pygame.draw.rect(window, iCol, (x,y,w,h))
-##    smallText=main_font
-    textSurf, textRect=text_objects(msg, smallText)
-    textRect.center=((x+(w/2)),(y+(h/2))) #x,y
-    window.blit(textSurf, textRect)
-
 #EVENTS LOOP
 def main_loop():
     isRunning=True    
     while isRunning:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                isRunning = False
-                
-
-            if event.type == pygame.KEYDOWN: #if key pressed
-                if event.key == pygame.K_w:
-                    Globals.camera_move=1
-                elif event.key == pygame.K_s:
-                    Globals.camera_move=2
-                elif event.key == pygame.K_a:
-                    Globals.camera_move=3
-                elif event.key == pygame.K_d:
-                    Globals.camera_move=4
-                    
-            elif event.type == pygame.KEYUP:
-                Globals.camera_move=0
-
-                
-            if event.type==pygame.MOUSEBUTTONDOWN:
-                
-                clicked=True
-                print(clicked)
-                
-                
-                    
-                
-
-        #LOGIC
-        if Globals.camera_move==1:
-            Globals.camera_y += 100 * deltatime
-        elif Globals.camera_move == 2:
-            Globals.camera_y -= 100 * deltatime
-        elif Globals.camera_move == 3:
-            Globals.camera_x += 100 * deltatime
-        elif Globals.camera_move == 4:
-            Globals.camera_x -= 100 * deltatime         
-
+                isRunning = False                
             
 
         
         # RENDER GRAPHICS          
         
 
-        #-Render Simple Grid
+        #Render Grass
         for x in range (0,window_width, Tiles.Size):
             for y in range(0, window_height, Tiles.Size):
                 window.blit(Tiles.Grass,(x,y))
 
 
-### pick phase
+### Pick Phase
         if(phs.phase=='pick' or phs.phase=='ready'):
-
-
-            #display_battle_canvas()
             for mktButton in buttons:
                 mktButton.update(window)
             
@@ -696,7 +568,7 @@ def main_loop():
 
             pygame.display.update()
 
-### battle phase            
+### Battle Phase            
         elif(phs.phase=='battle' or phs.phase=='gameover' or phs.phase=='rolling'):
             
             
@@ -725,21 +597,13 @@ def main_loop():
                 display_battle_message()
                 
             
-            pygame.display.update()
-            
-
-            
-        show_fps()
-        
-        
-        
-
+            pygame.display.update()     
+        show_fps() 
         count_fps()
     pygame.quit()
     sys.exit()    
 
-
-        
+     
 def game_intro ():
     intro = True
     window.fill(Color.White)
@@ -752,19 +616,11 @@ def game_intro ():
                     intro=False                    
                     main_loop()
                     
-                            
-
-
-
-        
-    
-    
-   
-
 create_window()
 
             
-#variables
+###VARIABLES
+
 #rect=ClickableRect((window.get_rect().centerx, window.get_rect().centery),(200,80))
 #button=Button((window.get_rect().centerx, window.get_rect().centery),(200,80),Color.Red)
 #txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
@@ -779,11 +635,11 @@ for idx,item in enumerate(athletes):
             button=MarketButton((65+110*col,40+60*row),(100,50), Color.Blue, item.name, idx)
             buttons.append(button)
 battle=Battle()
-
 phs=Phase('pick')            
-            
-#def __init__(self, pos, size, color, text, athIdx):
 
+
+
+###EXECUTE
 game_intro()
 
 
