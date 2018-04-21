@@ -4,7 +4,7 @@ import random
 class Player:
     def __init__(self, name,turn):
         self.name=name
-        self.money=500
+        self.money=400
         self.turn=turn
         
         self.score=0
@@ -21,13 +21,6 @@ class Player:
         self.roster.append(athlete) #fix later
     def assignDiceVal(self,diceval):
         self.diceVal=diceval
-    """
-    def buy_athlete(self,athname):
-        for a in athletes:
-            if a.name==athname:
-                self.money-=a.price
-                self.add_to_roster(a)
-    """
     def updateAvgs(self):
         print('updating Avgs')
         rosterLen=len(self.roster)
@@ -53,15 +46,6 @@ class Player:
         print(self.diceVal)
         return self.diceVal
 
-            
-                    
-
-            
-        
-            
-                
-        
-        
 
 class Athlete:
     def __init__(self, name, pos, atk, dfns, stm, price):
@@ -92,8 +76,6 @@ players.append(make_player('Player 2',False))
 
 athletes=[]
 
-
-
 athletes.append(make_athlete('Messi', 'FW', 10,4,5,120))
 athletes.append(make_athlete('Ronaldo', 'FW', 10,3,7,120))
 athletes.append(make_athlete('Suarez', 'FW', 9,3,7,100))
@@ -115,22 +97,6 @@ athletes.append(make_athlete('Chiellini', 'DF', 3,10,5,80))
 athletes.append(make_athlete('De Gea', 'GK', 2,8,5,80))
 athletes.append(make_athlete('Neuer', 'GK', 3,9,3,90))
 athletes.append(make_athlete('Courtois', 'GK', 2,9,5,70))
-
-
-
-"""
-athletes.append(make_athlete('Kroos', 'MF' ,,))
-
-athletes.append(make_athlete('Kante', 'MF' '10','5','7'))
-athletes.append(make_athlete('Busquets', 'MF' '10','5','7'))
-athletes.append(make_athlete('Ramos', 'DF' '10','5','7'))
-athletes.append(make_athlete('Pique', 'DF' '10','5','7'))
-athletes.append(make_athlete('Hummels', 'DF' '10','5','7'))
-athletes.append(make_athlete('Chiellini', 'DF' '10','5','7'))
-athletes.append(make_athlete('Neuer', 'GK' '10','5','7'))
-athletes.append(make_athlete('De Gea', 'GK' '10','5','7'))
-athletes.append(make_athlete('Courtois', 'GK' '10','5','7'))
-"""
 
         
             

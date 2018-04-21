@@ -23,6 +23,7 @@ pck_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 scr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",30)
 dice_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",35)
 pwr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",25)
+ovr_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
 
 
 interact=None
@@ -132,34 +133,16 @@ def display_battle_status():
 
     timeText=scr_font.render(str(battle.time) + "'",True,Color.Black)
     timeText_rect=timeText.get_rect(center=(window_width/2, window_height/4-70))
-
-    pckmsg="Your turn to attack"
-    pckText=None
-    pckText_rect=None
-
-
-    
-    
-    if players[0].turn:
-        pygame.draw.rect(window, Color.Red, [80, window_height/8, 250, 100], 2)
-        pckText=pck_font.render(pckmsg,True,Color.Red)
-        pckText_rect=pckText.get_rect(center=(window_width/4, window_height/8+70))
-    elif players[1].turn:
-        pygame.draw.rect(window, Color.Red, [window_width/2+80, window_height/8, 250, 100], 2)
-        pckText=pck_font.render(pckmsg,True,Color.Red)
-        pckText_rect=pckText.get_rect(center=(3*window_width/4, window_height/8+70))
-
-     
-    
+         
     #rosters
     for i in range(0,4):
          window.blit(main_font.render(players[0].roster[i].name,True,Color.Yellow),(window_width/6, window_height/2+20+20*i))            
          window.blit(main_font.render(players[1].roster[i].name,True,Color.Yellow),(3*window_width/4, window_height/2+20+20*i))
          if players[0].turn:
-             window.blit(main_font.render('ATK:' + str(players[0].roster[i].atk),True,Color.Yellow),(window_width/4, window_height/2+20+20*i))
+             window.blit(main_font.render('ATK:' + str(players[0].roster[i].atk),True,Color.Yellow),(window_width/4+20, window_height/2+20+20*i))
              window.blit(main_font.render('DEF:' + str(players[1].roster[i].dfns),True,Color.Yellow),(2.5*window_width/4, window_height/2+20+20*i))
          elif players[1].turn:
-             window.blit(main_font.render('DEF:' + str(players[0].roster[i].dfns),True,Color.Yellow),(window_width/4, window_height/2+20+20*i))
+             window.blit(main_font.render('DEF:' + str(players[0].roster[i].dfns),True,Color.Yellow),(window_width/4+20, window_height/2+20+20*i))
              window.blit(main_font.render('ATK:' + str(players[1].roster[i].atk),True,Color.Yellow),(2.5*window_width/4, window_height/2+20+20*i))
     
 
@@ -173,7 +156,7 @@ def display_battle_status():
          
     elif players[1].turn:
          overall1Text='Overall DEF : ' + str(players[0].avgDfns)
-         overall2Text='OVerall ATK : ' + str(players[1].avgAtk)
+         overall2Text='Overall ATK : ' + str(players[1].avgAtk)
                   
 
     
@@ -183,18 +166,30 @@ def display_battle_status():
     window.blit(scoreText,scoreText_rect)
     window.blit(timeText,timeText_rect)
 
-    if battle.timeIdx<len(battle.times)-1:
-        window.blit(pckText,pckText_rect)
+    window.blit(ovr_font.render(overall1Text,True,Color.Yellow),(window_width/4-50, window_height/2+120))
+    window.blit(ovr_font.render(overall2Text,True,Color.Yellow),(2.5*window_width/4, window_height/2+120))
+
+def display_btl_turn():
+    pckmsg="Your turn to attack"
+    pckText=None
+    pckText_rect=None
     
-    window.blit(main_font.render(overall1Text,True,Color.Yellow),(window_width/6, window_height/2+100))
-    window.blit(main_font.render(overall2Text,True,Color.Yellow),(3*window_width/4, window_height/2+100))
+    if players[0].turn:
+        pygame.draw.rect(window, Color.Red, [80, window_height/8, 250, 100], 2)
+        pckText=pck_font.render(pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(window_width/4, window_height/8+70))
+    elif players[1].turn:
+        pygame.draw.rect(window, Color.Red, [window_width/2+80, window_height/8, 250, 100], 2)
+        pckText=pck_font.render(pckmsg,True,Color.Red)
+        pckText_rect=pckText.get_rect(center=(3*window_width/4, window_height/8+70))
+
+    window.blit(pckText,pckText_rect)  
+    
    
 def display_dice():
     dicetext1=None
     dicetext2=None
 
-    
-    
     if phs.phase=='rolling':
         dicetext1=str(random.randrange(1,7))
         dicetext2=str(random.randrange(1,7))
@@ -203,8 +198,8 @@ def display_dice():
         dicetext2=str(players[1].diceVal)
        
 
-    window.blit(pwr_font.render(dicetext1,True,Color.Black),(window_width/4, window_height/2+100))
-    window.blit(pwr_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+100))
+    window.blit(pwr_font.render(dicetext1,True,Color.Black),(3*window_width/8, window_height/2+150))
+    window.blit(pwr_font.render(dicetext2,True,Color.Black),(5*window_width/8, window_height/2+150))
 
 
 def display_total_pwr():
@@ -222,7 +217,7 @@ def display_total_pwr():
         total2text='Total ATK Power : ' + str(players[1].totalPwr)
 
     
-    window.blit(pwr_font.render(total1text,True,Color.Black),(window_width/8, window_height/2+200))
+    window.blit(pwr_font.render(total1text,True,Color.Black),(window_width/8-30, window_height/2+200))
     window.blit(pwr_font.render(total2text,True,Color.Black),(5*window_width/8, window_height/2+200))        
     
 
@@ -580,6 +575,7 @@ def main_loop():
                 rollButton.update(window)
                 for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
                     mktButton.update(window)
+                display_btl_turn()    
                 display_dice()
                 display_total_pwr()
                 if battle.timeIdx:
@@ -590,7 +586,7 @@ def main_loop():
                 stopButton.update(window)
                 for mktButton in buttons: #BUG - roll button is being clicked only when mktButtons are updating -> why?
                     mktButton.update(window)
-                    
+                display_btl_turn()    
             
             elif(phs.phase=='gameover'):
                 display_total_pwr()
@@ -626,8 +622,8 @@ create_window()
 #txtButton=TextButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 #mktButton=MarketButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Button3",0)
 rdyButton=ReadyButton((window.get_rect().centerx,window.get_rect().centery),(200,80), Color.Red, "START BATTLE")
-rollButton=RollButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "Roll Dice")
-stopButton=StopButton((window.get_rect().centerx,window.get_rect().centery + 100),(200,80), Color.Red, "STOP")
+rollButton=RollButton((window.get_rect().centerx,window.get_rect().centery + 50),(150,80), Color.Red, "Roll Dice")
+stopButton=StopButton((window.get_rect().centerx,window.get_rect().centery + 50),(150,80), Color.Red, "STOP")
 
 for idx,item in enumerate(athletes):
             row = idx//7
