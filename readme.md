@@ -1,6 +1,8 @@
 # Rolling Eleven
 
 A simulation football game based on turns and dice rolls.
+Buy a team of world-class players and test your luck!
+
 
 ### Prerequisites
 
@@ -15,13 +17,10 @@ python3 -m pip install -U pygame --user
 https://www.pygame.org/wiki/GettingStarted
 
 
-### Installing
+### Getting Started
 
 Download all files and run main.py on Python IDLE
 
-```
-Give the example
-```
 
 ## Notes
 
@@ -36,5 +35,4 @@ Requires visual updates!
 ## Acknowledgments
 
 * Inspired by the Football Manager PC game
-* etc
 
