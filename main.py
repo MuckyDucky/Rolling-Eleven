@@ -13,7 +13,7 @@ cSec=0
 cFrame=0
 FPS=0
 
-game_title="FIFAL Fantasy"
+game_title="Rolling Eleven"
 
 #FONTS
 fps_font=pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf",20)
@@ -603,7 +603,7 @@ def main_loop():
 def game_intro ():
     intro = True
     window.fill(Color.White)
-    message_display('Welcome to '+game_title+'.\n Press Space to start game')
+    message_display('Welcome to '+game_title+'. Press Space to start game')
     pygame.display.update()
     while intro:
         for event in pygame.event.get():
